@@ -1,0 +1,46 @@
+<h1>Listing movies</h1>
+
+<% remote_form_for(@movie, :update => {:success => 'movies', :failure => 'error'}) do |f| %>
+  <div id="error">
+    <%= f.error_messages %>
+  </div>
+  <%= f.label :title%>
+  <%= f.text_field :title %><br /><br />
+  <%= f.label :description%>
+  <%= f.text_field :description %><br /><br />
+  <%= f.submit :disable_with => 'loading...' %>
+<% end %>
+<br /><br />
+<%= observe_field 'search', :update => 'movies', :frequency => 3, :with => "q" %>
+<%= observe_form 'new_movie', :update => 'movies', :frequency => 3, :with => "q" %>
+<% periodically_call_remote :url => '/movies', :frequency => 1, :update => {:success => 'movies', :failure => 'error'} %>
+Search: <input type="text" id="search" />
+<div id="movies">
+  <table>
+    <tr>
+      <th>Title</th>
+      <th>Description</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+
+  <% @movies.each do |movie| %>
+    <tr>
+      <td><%= movie.title %></td>
+      <td><%= movie.description %></td>
+      <td><%= link_to 'Show', movie %></td>
+      <td><%= link_to 'Edit', edit_movie_path(movie) %></td>
+      <td><%= link_to_remote 'Destroy', {:url => {:action => :destroy, :id => movie.id}, :href => '123', :confirm => 'Are you sure?', :method => "delete", :update => {:success => 'movies', :failure => 'error'}}, :id => 'test' %></td>
+      <td><%= button_to_remote 'Destroy', :url => movie, :confirm => 'Are you sure?', :method => "delete", :update => 'movies', :disable_with => 'loading...' %></td>
+    </tr>
+  <% end %>
+  </table>
+</div>
+
+<br />
+
+<%= link_to 'New movie', new_movie_path, :popup => true %>
+<%= link_to 'New movie w/options', new_movie_path, :popup => ['New Movie', 'width=300,height=300'] %>

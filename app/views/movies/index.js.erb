@@ -1,0 +1,21 @@
+<table>
+  <tr>
+    <th>Title</th>
+    <th>Description</th>
+    <th></th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @movies.each do |movie| %>
+  <tr>
+    <td><%= movie.title %></td>
+    <td><%= movie.description %></td>
+    <td><%= link_to 'Show', movie %></td>
+    <td><%= link_to 'Edit', edit_movie_path(movie) %></td>
+    <td><%= link_to_remote 'Destroy', :url => movie, :confirm => 'Are you sure?', :method => "delete", :update => 'movies' %></td>
+    <td><%= button_to_remote 'Destroy', :url => movie, :confirm => 'Are you sure?', :method => "delete", :update => 'movies', :disable_with => 'loading...' %></td>
+  </tr>
+<% end %>
+</table>
