@@ -12,7 +12,7 @@
 <% end %>
 <br /><br />
 <%= observe_field 'search', :update => 'movies', :frequency => 3, :with => "q" %>
-<%= observe_form 'new_movie', :update => 'movies', :frequency => 3, :with => "q" %>
+<% observe_form 'new_movie', :update => 'movies', :frequency => 3, :with => "q" %>
 <% periodically_call_remote :url => '/movies', :frequency => 1, :update => {:success => 'movies', :failure => 'error'} %>
 Search: <input type="text" id="search" />
 <div id="movies">
