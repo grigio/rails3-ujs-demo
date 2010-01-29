@@ -2,7 +2,7 @@ Event.observe(document, 'dom:loaded', function() {
   function handle_remote(el, e){
     var data        = null,
         method      = el.readAttribute('method') || el.readAttribute('data-method') || 'GET',
-        url         = el.readAttribute('action') || el.readAttribute('data-url') || '#',
+        url         = el.readAttribute('action') || el.readAttribute('data-url'),
         async       = el.readAttribute('data-remote-type') === 'synchronous' ? false : true,
         update      = el.readAttribute('data-update-success'),
         position    = el.readAttribute('data-update-position');
@@ -34,30 +34,31 @@ Event.observe(document, 'dom:loaded', function() {
 
     document.fire('rails:before');
 
-    var request = new Ajax.Request(url, {
-      method: method,
-      asynchronous: async,
-      parameters: data,
-      evalJS: true,
-      evalJSON: true,
-      onComplete: function(xhr){
-        document.fire('rails:complete', {xhr: xhr, element: el, submitted_button: getEventProperty(e, 'submitted_button')});
-      },
-      onLoading: function(xhr){
-        document.fire('rails:after', {xhr: xhr, element: el});
-        document.fire('rails:loading', {xhr: xhr, element: el});
-      },
-      onLoaded: function(xhr){
-        document.fire('rails:loaded', {xhr: xhr, element: el});
-      },
-      onSuccess: function(xhr){
-        document.fire('rails:success', {xhr: xhr, element: el});
-      },
-      onFailure: function(xhr){
-        document.fire('rails:failure', {xhr: xhr, element: el});
-      }
-    });
-
+    if(url !== null){
+      var request = new Ajax.Request(url, {
+        method: method,
+        asynchronous: async,
+        parameters: data,
+        evalJS: true,
+        evalJSON: true,
+        onComplete: function(xhr){
+          document.fire('rails:complete', {xhr: xhr, element: el, submitted_button: getEventProperty(e, 'submitted_button')});
+        },
+        onLoading: function(xhr){
+          document.fire('rails:after', {xhr: xhr, element: el});
+          document.fire('rails:loading', {xhr: xhr, element: el});
+        },
+        onLoaded: function(xhr){
+          document.fire('rails:loaded', {xhr: xhr, element: el});
+        },
+        onSuccess: function(xhr){
+          document.fire('rails:success', {xhr: xhr, element: el});
+        },
+        onFailure: function(xhr){
+          document.fire('rails:failure', {xhr: xhr, element: el});
+        }
+      });
+    }
   }
 
   function setEventProperty(e, property, value){
