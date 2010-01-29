@@ -29,7 +29,7 @@ jQuery(function ($) {
                 data        = [],
                 condition   = el.attr('data-condition') ? eval(el.attr('data-condition')) : true,
                 method      = el.attr('method') || el.attr('data-method') || 'GET',
-                url         = el.attr('action') || el.attr('data-url') || '#',
+                url         = el.attr('action') || el.attr('data-url'),
                 async       = el.attr('data-remote-type') === 'synchronous' ? false : true;
 
             if (el.attr('data-submit')) {
@@ -53,7 +53,7 @@ jQuery(function ($) {
                 data = el.closest('form').serializeArray();
             }
 
-            if (condition) {
+            if (condition && url) {
                 el.trigger('rails:before');
                 
                 $.ajax({
