@@ -9,7 +9,7 @@ Event.observe(document, 'dom:loaded', function() {
 
     if (el.readAttribute('data-submit')) {
       var submit_el = $(el.readAttribute('data-submit'));
-      if(submit_el !== undefined && submit_el.tagName.toUpperCase() == 'FORM'){
+      if(submit_el !== undefined && submit_el.tagName.toUpperCase() === 'FORM'){
         data = submit_el.serialize();
       }
     } else if (el.readAttribute('data-with')) {
@@ -136,22 +136,21 @@ Event.observe(document, 'dom:loaded', function() {
   });
 
   $$("script[data-observe=true]").each(function(el){
-      var observed_element = $(el.readAttribute('data-observed'));
-      var original_value =  observed_element.tagName.toUpperCase() === 'FORM' ? observed_element.serialize() : observed_element.getValue();
-      var callback = el.readAttribute('data-onobserve');
-      var executor = new PeriodicalExecuter(function() { 
-        var value = observed_element.tagName.toUpperCase() === 'FORM' ? observed_element.serialize() : observed_element.getValue();
+      var observed_element = $(el.readAttribute('data-observed')),
+          original_value =  observed_element.tagName.toUpperCase() === 'FORM' ? observed_element.serialize() : observed_element.getValue(),
+          callback = el.readAttribute('data-onobserve'),
+          executor = new PeriodicalExecuter(function() { 
+          value = observed_element.tagName.toUpperCase() === 'FORM' ? observed_element.serialize() : observed_element.getValue();
+            if(original_value !== value){
+              original_value = value;
 
-        if(original_value !== value){
-          original_value = value;
-
-          if(callback !== null){
-            evalAttribute(el, 'onobserve');
-          } else if(el.readAttribute('data-url') !== null){
-            handle_remote(el);
-          }
-        }
-      }, el.readAttribute('data-frequency'));
+              if(callback !== null){
+                evalAttribute(el, 'onobserve');
+              } else if(el.readAttribute('data-url') !== null){
+                handle_remote(el);
+              }
+            }
+          }, el.readAttribute('data-frequency'));
 
   });
 
@@ -220,8 +219,8 @@ Event.observe(document, 'dom:loaded', function() {
   });
 
   Event.observe(document, 'rails:popup', function(e){
-    var el = getEventProperty(e, 'element');
-    var url = el.readAttribute('href') || el.readAttribute('data-url');
+    var el = getEventProperty(e, 'element'),
+        url = el.readAttribute('href') || el.readAttribute('data-url');
     
     if(el.readAttribute('data-popup') === true){
       window.open(url);

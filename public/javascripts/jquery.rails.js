@@ -62,7 +62,7 @@ jQuery(function ($) {
                     data: data,
                     type: method.toUpperCase(),
                     beforeSend: function (xhr) {
-                        xhr.setRequestHeader("Accept", "text/javascript")
+                        xhr.setRequestHeader("Accept", "text/javascript");
                         el.trigger('rails:after', xhr);
                         el.trigger('rails:loading', xhr);
                     },
@@ -101,29 +101,28 @@ jQuery(function ($) {
             }
             e.preventDefault();
         }
-    }
+    };
 
     /**
      * observe_form, and observe_field
      */
     $('script[data-observe="true"]').each(function (index, e) {
         var el          = $(e),
-            observed    = $('#' + $(e).attr('data-observed'));
+            observed    = $('#' + $(e).attr('data-observed')),
             frequency   = el.attr('data-frequency') ? el.attr('data-frequency') : 10,
-            value       = observed[0].tagName.toUpperCase() === 'FORM' ? observed.serialize() : observed.val();
+            value       = observed[0].tagName.toUpperCase() === 'FORM' ? observed.serialize() : observed.val(),
+            observe = function (observed, frequency, value, e) {
+              return function () {
+                  var event       = new jQuery.Event('periodical'),
+                      newValue    = observed[0].tagName.toUpperCase() === 'FORM' ? observed.serialize() : observed.val();
+                  event.target = e;
 
-        var observe = function (observed, frequency, value, e) {
-            return function () {
-                var event       = new jQuery.Event('periodical'),
-                    newValue    = observed[0].tagName.toUpperCase() === 'FORM' ? observed.serialize() : observed.val();
-                event.target = e;
-
-                if(value !== newValue) {
-                    value = newValue;
-                    $(e).trigger('rails:observe');
-                    rails.remote.call(el, event);
-                }
-            }
+                  if(value !== newValue) {
+                      value = newValue;
+                      $(e).trigger('rails:observe');
+                      rails.remote.call(el, event);
+                  }
+              };
         }(observed, frequency, value, e);
 
         setInterval(observe, frequency * 1000);
@@ -154,7 +153,7 @@ jQuery(function ($) {
                 event.target = e;
 
                 rails.remote.call(el, event);
-            }
+            };
         }(e, el), frequency * 1000);
     });
 
@@ -165,14 +164,27 @@ jQuery(function ($) {
         var el = $(this);
 
         el.attr('data-enable-with', el.attr('value'));
-        el.attr('disabled', 'disabled');
         el.attr('value', el.attr('data-disable-with'));
+
+        // Prevent weird issue with safari not sending submit event if button is disabled
+        if(el.attr('type').toUpperCase() !== 'SUBMIT'){
+          el.attr('disabled', 'disabled');
+        }
     });
 
     /**
      * remote_form_tag, and remote_form_for
      */
-    $('form[data-remote="true"]').live('submit', rails.remote);
+    $('form[data-remote="true"]').live('submit', function(e){
+        var el =  $(e.target);
+
+        // Disable submitted button have to do this here for submits only due to weird safari issue
+        // where this event is not called if button is disabled
+        el.children('input[type="submit"][data-enable-with]').each(function(i, button){
+          $(button).attr('disabled', 'disabled');
+        });
+        rails.remote.call(el, e);
+    });
 
     /**
      * link_to_remote, button_to_remote, and submit_to_remote
